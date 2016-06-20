@@ -17,7 +17,7 @@ setup(
                           'static/*.*', 'static/*/*.*'],
     },
     install_requires=[
-        'Flask == 0.10.0',
+        'Flask == 0.11',
         'SQLAlchemy == 1.0.13',
         'click == 6.6',
     ],
