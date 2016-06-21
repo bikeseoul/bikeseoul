@@ -1,4 +1,59 @@
 {% extends 'base.html' %}
 
 {% block main %}
+    <h2>가장 가까운 대여소</h2>
+    <div id="map"></div>
+{% endblock %}
+
+{% block trailing_javascript %}
+    <script>
+        var map;
+        var stations = [
+            {% for station in stations %}
+                {
+                    'name': '{{ station.name }}',
+                    'longitude': {{ station.longitude }},
+                    'latitude': {{ station.latitude }},
+                    'url': '{{ url_for('station.station_detail', station_id=station.id) }}'
+                },
+            {% endfor %}
+        ];
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 37.565289, lng: 126.8491221},
+                zoom: 15
+            });
+            var initialLocation;
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    var distance = Number.MAX_VALUE;
+                    var nearest;
+                    for (var station of stations) {
+                        var dist = google.maps.geometry.spherical.computeDistanceBetween(initialLocation, new google.maps.LatLng(station.latitude, station.longitude));
+                        if (dist < distance) {
+                            nearest = station;
+                            distance = dist
+                        }
+                    }
+                    console.log(distance);
+                    console.log(station);
+                    map.setCenter({lat: station.latitude, lng: station.longitude});
+                });
+            }
+            for (var station of stations) {
+                var marker = new google.maps.Marker({
+                    position: {lat: station.latitude, lng: station.longitude},
+                    map: map,
+                    title: station.name,
+                    url: station.url
+                });
+                google.maps.event.addListener(marker, 'click', function() {
+                    window.location.href = this.url;
+                });
+                marker.setMap(map);
+            }
+        }
+    </script>
+    <script src="{{ "https://maps.googleapis.com/maps/api/js?key={}&libraries=geometry&callback=initMap".format(config.GOOGLE_API_KEY) }}" async defer></script>
 {% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <h2>대여소</h2>
+    <a href="{{ url_for('.update_stations') }}">대여소 갱신하기</a>
+    {% if stations %}
+        <ul>
+            {% for station in stations %}
+                <li>
+                    <a href="{{ url_for('.station_detail', station_id=station.id) }}">{{ station.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>등록된 대여소가 없습니다.</p>
+    {% endif %}
+{% endblock %}

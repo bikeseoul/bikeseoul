@@ -20,6 +20,7 @@ setup(
         'Flask == 0.11',
         'SQLAlchemy == 1.0.13',
         'click == 6.6',
+        'requests == 2.10.0',
     ],
     entry_points={
         'console_scripts': ['bikeseoul = bikeseoul.cli:cli'],

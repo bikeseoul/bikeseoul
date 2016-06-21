@@ -27,10 +27,22 @@
             </ul>
         {% endif %}
     {% endwith %}
+    <nav>
+        <ul>
+            <li>
+                <a href="{{ url_for('station.list_stations') }}">대여소</a>
+                {% if stations %}
+                    (<a href="{{ url_for('station.random_station') }}">랜덤</a>)
+                {% endif %}
+            </li>
+        </ul>
+    </nav>
 </header>
 <main>
     {% block main %}
     {% endblock %}
 </main>
+{% block trailing_javascript %}
+{% endblock %}
 </body>
 </html>

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <h2>대여소 상태</h2>
+    <a href="{{ url_for('.import_station_statuses') }}">대여소 상태 불러오기</a>
+    {% if statuses %}
+        <ul>
+            {% for status in statuses %}
+                <li>
+                    {{ status.timestamp }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>수집된 대여소 상태가 없습니다.</p>
+    {% endif %}
+{% endblock %}
