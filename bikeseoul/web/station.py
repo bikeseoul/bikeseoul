@@ -88,13 +88,19 @@ def machine_learning_csv():
         for status in statuses:
             row = dict()
             row['timestamp'] = status.timestamp
-            for s in status.data['realtimeList']:
-                for station in stations:
-                    if s['stationName'] == station.name:
-                        row[station.name] = s['parkingBikeTotCnt']
+            for station in stations:
+                s = get_status_for_station(station, status)
+                if s and s['stationName'] == station.name:
+                    row[station.name] = s['parkingBikeTotCnt']
             yield str(row['timestamp'].timestamp()) + ',' + \
                 ','.join([row.get(s.name, '') for s in stations]) + '\n'
     return Response(stream_with_context(generate()), mimetype='text/csv')
+
+
+def get_status_for_station(station, status):
+    for s in status.data['realtimeList']:
+        if s['stationName'] == station.name:
+            return s
 
 
 @bp.route('/stations/<int:station_id>/')
