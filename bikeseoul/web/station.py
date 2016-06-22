@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+import boto3
 import requests
 from flask import (Blueprint, Response, current_app, redirect, render_template,
                    stream_with_context, url_for, jsonify, abort)
@@ -105,6 +106,23 @@ def get_status_for_station(station, status):
 
 @bp.route('/stations/<int:station_id>/')
 def station_detail(station_id):
+    ml_model_id = 'ml-3TWYsUs0RbA'  # FIXME
+    latest_status = session.query(StationStatus) \
+                           .order_by(StationStatus.timestamp.desc()) \
+                           .first()  # FIXME
+    client = boto3.client('machinelearning')
+    record = {
+        'timestamp': str(latest_status.timestamp.timestamp() + 60 * 30)
+    }
+    for station in get_stations():
+        status = get_status_for_station(station, latest_status)
+        if status:
+            record[station.name] = status['parkingBikeTotCnt']
+    prediction = client.predict(
+        MLModelId=ml_model_id,
+        Record=record,
+        PredictEndpoint=current_app.config['AMAZON_ML_ENDPOINT']
+    )
     station = get_station(station_id)
     if station:
         q = get_statuses(10)
@@ -116,7 +134,8 @@ def station_detail(station_id):
                     statuses.append(s)
         stations = get_stations()
         return render_template('station_detail.html', stations=stations,
-                               station=station, statuses=statuses)
+                               station=station,statuses=statuses,
+                               prediction=prediction)
     else:
         abort(404)
 

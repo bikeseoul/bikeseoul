@@ -6,6 +6,7 @@
         <li>{{ station.latitude }}, {{ station.longitude }}</li>
     </ul>
     <p>총 {{ station.rack_count }}대 자전거 거치 가능</p>
+    <p>30분 후에는, 약 {{ prediction.Prediction.predictedValue|int }}대의 자전거가 거치 되어 있을 것 같습니다.</p>
     <div id="chart"></div>
     <div id="map"></div>
 {% endblock %}
