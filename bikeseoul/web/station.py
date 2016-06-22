@@ -66,7 +66,7 @@ def list_stations():
 
 def get_statuses(granularity):
     q = session.query(StationStatus) \
-               .order_by(StationStatus.timestamp.desc()) \
+               .order_by(StationStatus.timestamp.asc()) \
                .subquery('c')
     q = session.query(StationStatus,
                       func.row_number().over().label("row_number")) \

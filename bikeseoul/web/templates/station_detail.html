@@ -43,7 +43,7 @@
             }
         }
         var data = [
-            {% for status in statuses|reverse %}
+            {% for status in statuses %}
                 {
                     'bikecount': {{ status.parkingBikeTotCnt }},
                     'timestamp': {{ status.timestamp.strftime('%s') }}
