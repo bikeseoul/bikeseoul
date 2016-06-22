@@ -7,8 +7,8 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
-from flask import (Blueprint, current_app, redirect, render_template, url_for,
-                   jsonify, abort)
+from flask import (Blueprint, Response, current_app, redirect, render_template,
+                   stream_with_context, url_for, jsonify, abort)
 from sqlalchemy.sql.functions import random, func
 
 from ..station import Station, StationStatus
@@ -76,6 +76,25 @@ def get_statuses(granularity):
                .select_entity_from(q) \
                .filter(q.c.row_number % granularity == 0)
     return q
+
+
+@bp.route('/machine-learning/csv/')
+def machine_learning_csv():
+    def generate():
+        stations = get_stations()
+        statuses = get_statuses(10)
+        yield 'timestamp,' + \
+              ','.join([station.name for station in stations]) + '\n'
+        for status in statuses:
+            row = dict()
+            row['timestamp'] = status.timestamp
+            for s in status.data['realtimeList']:
+                for station in stations:
+                    if s['stationName'] == station.name:
+                        row[station.name] = s['parkingBikeTotCnt']
+            yield str(row['timestamp'].timestamp()) + ',' + \
+                ','.join([row.get(s.name, '') for s in stations]) + '\n'
+    return Response(stream_with_context(generate()), mimetype='text/csv')
 
 
 @bp.route('/stations/<int:station_id>/')
