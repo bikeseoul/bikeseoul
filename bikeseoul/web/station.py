@@ -22,6 +22,13 @@ BIKESEOUL_REALTIME_STATUS_URL = \
     "https://www.bikeseoul.com/app/station/getStationRealtimeStatus.do"
 
 
+def get_stations():
+    stations = session.query(Station) \
+                      .order_by(Station.name) \
+                      .all()
+    return stations
+
+
 def get_station(station_id):
     station = session.query(Station).get(station_id)
     return station
@@ -57,27 +64,32 @@ def list_stations():
         return render_template('stations.html', stations=stations)
 
 
+def get_statuses(granularity):
+    q = session.query(StationStatus) \
+               .order_by(StationStatus.timestamp.desc()) \
+               .subquery('c')
+    q = session.query(StationStatus,
+                      func.row_number().over().label("row_number")) \
+               .select_entity_from(q) \
+               .subquery()
+    q = session.query(StationStatus) \
+               .select_entity_from(q) \
+               .filter(q.c.row_number % granularity == 0)
+    return q
+
+
 @bp.route('/stations/<int:station_id>/')
 def station_detail(station_id):
     station = get_station(station_id)
     if station:
-        q = session.query(StationStatus) \
-                   .order_by(StationStatus.timestamp.desc()) \
-                   .subquery('c')
-        q = session.query(StationStatus,
-                          func.row_number().over().label("row_number")) \
-                   .select_entity_from(q) \
-                   .subquery()
-        q = session.query(StationStatus) \
-                   .select_entity_from(q) \
-                   .filter(q.c.row_number % 10 == 0)
+        q = get_statuses(10)
         statuses = []
         for status in q:
             for s in status.data['realtimeList']:
                 if s['stationName'] == station.name:
                     s['timestamp'] = status.timestamp
                     statuses.append(s)
-        stations = session.query(Station).all()
+        stations = get_stations()
         return render_template('station_detail.html', stations=stations,
                                station=station, statuses=statuses)
     else:
