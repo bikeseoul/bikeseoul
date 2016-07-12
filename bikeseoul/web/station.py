@@ -7,7 +7,6 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import urlopen
 
-import boto3
 import requests
 from flask import (Blueprint, Response, current_app, redirect, render_template,
                    stream_with_context, url_for, jsonify, abort)
@@ -115,6 +114,7 @@ def station_detail(station_id):
                                .order_by(StationStatus.timestamp.desc()) \
                                .first()  # FIXME
         if current_app.config.get('USE_PREDICTION', False) and latest_status:
+            import boto3
             client = boto3.client('machinelearning')
             prediction = client.predict(
                 MLModelId=current_app.config('AMAZON_ML_MODEL_ID'),  # FIXME
