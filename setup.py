@@ -20,7 +20,7 @@ setup(
         'Flask == 0.11',
         'SQLAlchemy == 1.0.13',
         'click == 6.6',
-        'lxml == 3.6.0',
+        'lxml',
         'requests == 2.10.0',
     ],
     extras_require={
