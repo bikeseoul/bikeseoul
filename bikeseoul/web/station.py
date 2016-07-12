@@ -112,19 +112,22 @@ def station_detail(station_id):
     latest_status = session.query(StationStatus) \
                            .order_by(StationStatus.timestamp.desc()) \
                            .first()  # FIXME
-    client = boto3.client('machinelearning')
-    record = {
-        'timestamp': str(latest_status.timestamp.timestamp() + 60 * 30)
-    }
-    for station in get_stations():
-        status = get_status_for_station(station, latest_status)
-        if status:
-            record[station.name] = status['parkingBikeTotCnt']
-    prediction = client.predict(
-        MLModelId=ml_model_id,
-        Record=record,
-        PredictEndpoint=current_app.config['AMAZON_ML_ENDPOINT']
-    )
+    if latest_status:
+        client = boto3.client('machinelearning')
+        record = {
+            'timestamp': str(latest_status.timestamp.timestamp() + 60 * 30)
+        }
+        for station in get_stations():
+            status = get_status_for_station(station, latest_status)
+            if status:
+                record[station.name] = status['parkingBikeTotCnt']
+        prediction = client.predict(
+            MLModelId=ml_model_id,
+            Record=record,
+            PredictEndpoint=current_app.config['AMAZON_ML_ENDPOINT']
+        )
+    else:
+        prediction = None
     station = get_station(station_id)
     if station:
         q = get_statuses(10)

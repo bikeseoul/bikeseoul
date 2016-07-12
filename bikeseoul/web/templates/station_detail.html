@@ -11,7 +11,9 @@
     <p>총 {{ station.rack_count }}대의 자전거를 거치 가능한 대여소입니다.</p>
     {% if statuses %}
         <p>현재 {{ statuses[-1].parkingBikeTotCnt }}대의 자전거가 거치 되어 있습니다.</p>
-        <p>30분 후에는, 약 {{ prediction.Prediction.predictedValue|int }}대의 자전거가 거치 되어 있을 것 같습니다.</p>
+        {% if prediction %}
+            <p>30분 후에는, 약 {{ prediction.Prediction.predictedValue|int }}대의 자전거가 거치 되어 있을 것 같습니다.</p>
+        {% endif %}
     {% endif %}
     <div id="chart"></div>
     <div id="map"></div>
