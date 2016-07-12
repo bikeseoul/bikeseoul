@@ -92,7 +92,7 @@ def machine_learning_csv():
             row['timestamp'] = status.timestamp
             for station in stations:
                 s = get_status_for_station(station, status)
-                if s and s['stationName'] == station.name:
+                if s:
                     row[station.name] = s['parkingBikeTotCnt']
             yield str(row['timestamp'].timestamp()) + ',' + \
                 ','.join([row.get(st.name, '') for st in stations]) + '\n'
@@ -131,8 +131,9 @@ def station_detail(station_id):
         station_statuses = []
         for status in get_statuses(10):
             s = get_status_for_station(station, status)
-            s['timestamp'] = status.timestamp
-            station_statuses.append(s)
+            if s:
+                s['timestamp'] = status.timestamp
+                station_statuses.append(s)
         return render_template('station_detail.html', stations=stations,
                                station=station, statuses=station_statuses,
                                latest_station_status=latest_station_status,
