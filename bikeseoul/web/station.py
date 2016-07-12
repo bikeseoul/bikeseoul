@@ -116,9 +116,8 @@ def station_detail(station_id):
                                .first()  # FIXME
         if latest_status:
             client = boto3.client('machinelearning')
-            ml_model_id = 'ml-3TWYsUs0RbA'  # FIXME
             prediction = client.predict(
-                MLModelId=ml_model_id,
+                MLModelId=current_app.config('AMAZON_ML_MODEL_ID'),  # FIXME
                 Record=build_record_for_prediction(latest_status, stations),
                 PredictEndpoint=current_app.config['AMAZON_ML_ENDPOINT']
             )
