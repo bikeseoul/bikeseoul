@@ -4,6 +4,7 @@
     <h2>대여소</h2>
     <a href="{{ url_for('.update_stations') }}">대여소 갱신하기</a>
     {% if stations %}
+        <p>총 {{ stations|count }}개의 대여소가 있습니다.</p>
         <ul>
             {% for station in stations %}
                 <li>
