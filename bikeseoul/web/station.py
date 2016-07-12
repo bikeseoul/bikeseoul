@@ -123,6 +123,11 @@ def station_detail(station_id):
             )
         else:
             prediction = None
+        if latest_status:
+            latest_station_status = get_status_for_station(station,
+                                                           latest_status)
+        else:
+            latest_station_status = None
         station_statuses = []
         for status in get_statuses(10):
             s = get_status_for_station(station, status)
@@ -130,6 +135,7 @@ def station_detail(station_id):
             station_statuses.append(s)
         return render_template('station_detail.html', stations=stations,
                                station=station, statuses=station_statuses,
+                               latest_station_status=latest_station_status,
                                prediction=prediction)
     else:
         abort(404)
