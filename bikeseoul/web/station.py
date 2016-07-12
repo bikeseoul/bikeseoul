@@ -145,6 +145,25 @@ def station_detail(station_id):
         abort(404)
 
 
+def update_station_statuses(status):
+    station_status = StationStatus(
+        data=status,
+        timestamp=datetime.utcnow(),
+    )
+    session.add(station_status)
+    session.commit()
+
+
+def update_station_list(status):
+    stations = build_stations(status)
+    for station in stations:
+        old_station = get_station(station.id)
+        if old_station:
+            session.delete(old_station)
+        session.add(station)
+    session.commit()
+
+
 def update_station_addresses():
     page = 1
     while True:
@@ -167,18 +186,8 @@ def update_station_addresses():
 @bp.route('/stations/update/')
 def update_stations():
     status = get_status()
-    station_status = StationStatus(
-        data=status,
-        timestamp=datetime.utcnow(),
-    )
-    session.add(station_status)
-    stations = build_stations(status)
-    for station in stations:
-        old_station = get_station(station.id)
-        if old_station:
-            session.delete(old_station)
-        session.add(station)
-        session.commit()
+    update_station_statuses(status)
+    update_station_list(status)
     update_station_addresses()
     return redirect(url_for('.list_stations'))
 
