@@ -157,7 +157,7 @@ def update_station_addresses():
                 session.add(s)
         else:
             break
-        page = page + 1
+        page += 1
     session.commit()
 
 
