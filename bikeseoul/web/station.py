@@ -114,7 +114,7 @@ def station_detail(station_id):
         latest_status = session.query(StationStatus) \
                                .order_by(StationStatus.timestamp.desc()) \
                                .first()  # FIXME
-        if latest_status:
+        if current_app.config.get('USE_PREDICTION', False) and latest_status:
             client = boto3.client('machinelearning')
             prediction = client.predict(
                 MLModelId=current_app.config('AMAZON_ML_MODEL_ID'),  # FIXME
