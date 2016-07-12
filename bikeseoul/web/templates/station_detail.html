@@ -4,6 +4,9 @@
     <h2>{{ station.name }}</h2>
     <ul>
         <li>{{ station.latitude }}, {{ station.longitude }}</li>
+        {% if station.address %}
+            <li>{{ station.address }}</li>
+        {% endif %}
     </ul>
     <p>총 {{ station.rack_count }}대의 자전거를 거치 가능한 대여소입니다.</p>
     {% if statuses %}

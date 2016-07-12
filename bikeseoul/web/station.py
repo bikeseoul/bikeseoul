@@ -5,11 +5,13 @@
 import json
 from datetime import datetime
 from pathlib import Path
+from urllib.request import urlopen
 
 import boto3
 import requests
 from flask import (Blueprint, Response, current_app, redirect, render_template,
                    stream_with_context, url_for, jsonify, abort)
+from lxml import html
 from sqlalchemy.sql.functions import random, func
 
 from ..station import Station, StationStatus
@@ -19,8 +21,8 @@ from .util import request_wants_json
 
 bp = Blueprint('station', __name__)
 
-BIKESEOUL_REALTIME_STATUS_URL = \
-    "https://www.bikeseoul.com/app/station/getStationRealtimeStatus.do"
+BIKESEOUL_REALTIME_STATUS_URL = "https://www.bikeseoul.com/app/station/getStationRealtimeStatus.do"  # noqa
+BIKESEOUL_SEARCH_VIEW_URL = "https://www.bikeseoul.com/app/station/moveStationSearchView.do?currentPageNo={}"  # noqa
 
 
 def get_stations():
@@ -140,6 +142,25 @@ def station_detail(station_id):
         abort(404)
 
 
+def update_station_addresses():
+    page = 1
+    while True:
+        with urlopen(BIKESEOUL_SEARCH_VIEW_URL.format(page)) as f:
+            tree = html.parse(f)
+        stations = tree.xpath('//*[@id="container"]/table/tbody/tr[*]')
+        if stations:
+            for station in stations:
+                name = station.xpath('td[1]/a/text()')[0]
+                address = station.xpath('td[5]/span/text()')[0]
+                s = session.query(Station).filter(Station.name == name).one()
+                s.address = address
+                session.add(s)
+        else:
+            break
+        page = page + 1
+    session.commit()
+
+
 @bp.route('/stations/update/')
 def update_stations():
     status = get_status()
@@ -150,6 +171,7 @@ def update_stations():
             session.delete(old_station)
         session.add(station)
         session.commit()
+    update_station_addresses()
     return redirect(url_for('.list_stations'))
 
 
