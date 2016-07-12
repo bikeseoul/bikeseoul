@@ -108,40 +108,43 @@ def get_status_for_station(station, status):
 
 @bp.route('/stations/<int:station_id>/')
 def station_detail(station_id):
-    ml_model_id = 'ml-3TWYsUs0RbA'  # FIXME
-    latest_status = session.query(StationStatus) \
-                           .order_by(StationStatus.timestamp.desc()) \
-                           .first()  # FIXME
-    if latest_status:
-        client = boto3.client('machinelearning')
-        record = {
-            'timestamp': str(latest_status.timestamp.timestamp() + 60 * 30)
-        }
-        for station in get_stations():
-            status = get_status_for_station(station, latest_status)
-            if status:
-                record[station.name] = status['parkingBikeTotCnt']
-        prediction = client.predict(
-            MLModelId=ml_model_id,
-            Record=record,
-            PredictEndpoint=current_app.config['AMAZON_ML_ENDPOINT']
-        )
-    else:
-        prediction = None
     station = get_station(station_id)
     if station:
-        q = get_statuses(10)
-        statuses = []
-        for status in q:
+        stations = get_stations()
+        latest_status = session.query(StationStatus) \
+                               .order_by(StationStatus.timestamp.desc()) \
+                               .first()  # FIXME
+        if latest_status:
+            client = boto3.client('machinelearning')
+            ml_model_id = 'ml-3TWYsUs0RbA'  # FIXME
+            prediction = client.predict(
+                MLModelId=ml_model_id,
+                Record=build_record_for_prediction(latest_status, stations),
+                PredictEndpoint=current_app.config['AMAZON_ML_ENDPOINT']
+            )
+        else:
+            prediction = None
+        station_statuses = []
+        for status in get_statuses(10):
             s = get_status_for_station(station, status)
             s['timestamp'] = status.timestamp
-            statuses.append(s)
-        stations = get_stations()
+            station_statuses.append(s)
         return render_template('station_detail.html', stations=stations,
-                               station=station, statuses=statuses,
+                               station=station, statuses=station_statuses,
                                prediction=prediction)
     else:
         abort(404)
+
+
+def build_record_for_prediction(status, stations):
+    record = {
+        'timestamp': str(status.timestamp.timestamp() + 60 * 30)  # FIXME
+    }
+    for station in stations:
+        status = get_status_for_station(station, status)
+        if status:
+            record[station.name] = status['parkingBikeTotCnt']
+    return record
 
 
 def update_station_statuses(status):
