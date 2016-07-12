@@ -60,7 +60,7 @@ def build_stations(status):
 
 @bp.route('/stations/')
 def list_stations():
-    stations = session.query(Station).all()
+    stations = session.query(Station).order_by(Station.name).all()
     if request_wants_json():
         return jsonify(stations=[station.as_dict() for station in stations])
     else:
