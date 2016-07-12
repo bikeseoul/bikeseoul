@@ -164,6 +164,11 @@ def update_station_addresses():
 @bp.route('/stations/update/')
 def update_stations():
     status = get_status()
+    station_status = StationStatus(
+        data=status,
+        timestamp=datetime.utcnow(),
+    )
+    session.add(station_status)
     stations = build_stations(status)
     for station in stations:
         old_station = get_station(station.id)
