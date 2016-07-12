@@ -96,7 +96,7 @@ def machine_learning_csv():
                 if s and s['stationName'] == station.name:
                     row[station.name] = s['parkingBikeTotCnt']
             yield str(row['timestamp'].timestamp()) + ',' + \
-                ','.join([row.get(s.name, '') for s in stations]) + '\n'
+                ','.join([row.get(st.name, '') for st in stations]) + '\n'
     return Response(stream_with_context(generate()), mimetype='text/csv')
 
 
@@ -139,7 +139,7 @@ def station_detail(station_id):
                     statuses.append(s)
         stations = get_stations()
         return render_template('station_detail.html', stations=stations,
-                               station=station,statuses=statuses,
+                               station=station, statuses=statuses,
                                prediction=prediction)
     else:
         abort(404)

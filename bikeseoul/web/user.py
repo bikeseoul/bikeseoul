@@ -17,6 +17,7 @@ def home():
     stations = session.query(Station).all()
     return render_template('home.html', stations=stations)
 
+
 @bp.route('/search/', methods=['POST'])
 def search():
     """Search."""
