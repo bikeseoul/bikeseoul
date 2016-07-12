@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <h2>검색 결과</h2>
+    {% if stations %}
+        <ul>
+            {% for station in stations %}
+                <li>
+                    <a href="{{ url_for('station.station_detail', station_id=station.id) }}">{{ station.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>검색 결과가 없습니다.</p>
+    {% endif %}
+{% endblock %}
