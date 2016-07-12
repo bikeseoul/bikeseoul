@@ -133,10 +133,9 @@ def station_detail(station_id):
         q = get_statuses(10)
         statuses = []
         for status in q:
-            for s in status.data['realtimeList']:
-                if s['stationName'] == station.name:
-                    s['timestamp'] = status.timestamp
-                    statuses.append(s)
+            s = get_status_for_station(station, status)
+            s['timestamp'] = status.timestamp
+            statuses.append(s)
         stations = get_stations()
         return render_template('station_detail.html', stations=stations,
                                station=station, statuses=statuses,
