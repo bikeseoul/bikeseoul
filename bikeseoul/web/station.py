@@ -129,11 +129,12 @@ def station_detail(station_id):
         else:
             latest_station_status = None
         station_statuses = []
-        for status in get_statuses(10):
-            s = get_status_for_station(station, status)
-            if s:
-                s['timestamp'] = status.timestamp
-                station_statuses.append(s)
+        if current_app.config.get('USE_CHART', False):
+            for status in get_statuses(10):
+                s = get_status_for_station(station, status)
+                if s:
+                    s['timestamp'] = status.timestamp
+                    station_statuses.append(s)
         return render_template('station_detail.html', stations=stations,
                                station=station, statuses=station_statuses,
                                latest_station_status=latest_station_status,

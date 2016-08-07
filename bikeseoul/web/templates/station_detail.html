@@ -15,7 +15,9 @@
     {% if prediction %}
         <p>30분 후에는, 약 {{ prediction.Prediction.predictedValue|int }}대의 자전거가 거치 되어 있을 것 같습니다.</p>
     {% endif %}
-    <div id="chart"></div>
+    {% if config.USE_CHART %}
+        <div id="chart"></div>
+    {% endif %}
     <div id="map"></div>
 {% endblock %}
 
@@ -51,59 +53,60 @@
                 marker.setMap(map);
             }
         }
-        var data = [
-            {% for status in statuses %}
-                {
-                    'bikecount': {{ status.parkingBikeTotCnt }},
-                    'timestamp': {{ status.timestamp.strftime('%s') }}
-                },
-            {% endfor %}
-        ];
-        var margin = {
-            top: 20,
-            right: 20,
-            bottom: 30,
-            left: 50
-        };
-        var width = 960 - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
-        var x = d3.time.scale()
-                .range([0, width]);
-        var y = d3.scale.linear()
-                .range([height, 0]);
-        var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom");
-        var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left");
-        var line = d3.svg.line()
-                .x(function(d) { return x(d.timestamp); })
-                .y(function(d) { return y(d.bikecount); });
-        var svg = d3.select("#chart").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        x.domain(d3.extent(data, function(d) { return d.timestamp; }));
-        y.domain(d3.extent(data, function(d) { return d.bikecount; }));
-        svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-        svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("자전거");
-        svg.append("path")
-                .datum(data)
-                .attr("class", "line")
-                .attr("d", line);
+        {% if config.USE_CHART %}
+            var data = [
+                {% for status in statuses %}
+                    {
+                        'bikecount': {{ status.parkingBikeTotCnt }},
+                        'timestamp': {{ status.timestamp.strftime('%s') }}
+                    },
+                {% endfor %}
+            ];
+            var margin = {
+                top: 20,
+                right: 20,
+                bottom: 30,
+                left: 50
+            };
+            var width = 960 - margin.left - margin.right;
+            var height = 500 - margin.top - margin.bottom;
+            var x = d3.time.scale()
+                    .range([0, width]);
+            var y = d3.scale.linear()
+                    .range([height, 0]);
+            var xAxis = d3.svg.axis()
+                    .scale(x)
+                    .orient("bottom");
+            var yAxis = d3.svg.axis()
+                    .scale(y)
+                    .orient("left");
+            var line = d3.svg.line()
+                    .x(function(d) { return x(d.timestamp); })
+                    .y(function(d) { return y(d.bikecount); });
+            var svg = d3.select("#chart").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            x.domain(d3.extent(data, function(d) { return d.timestamp; }));
+            y.domain(d3.extent(data, function(d) { return d.bikecount; }));
+            svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis);
+            svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("자전거");
+            svg.append("path")
+                    .datum(data)
+                    .attr("class", "line")
+                    .attr("d", line);
+        {% endif %}
     </script>
-    <script src="{{ "https://maps.googleapis.com/maps/api/js?key={}&callback=initMap".format(config.GOOGLE_API_KEY) }}" async defer></script>
 {% endblock %}
