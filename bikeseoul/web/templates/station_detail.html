@@ -24,7 +24,6 @@
 {% block trailing_javascript %}
     <script src="https://d3js.org/d3.v2.min.js" charset="utf-8"></script>
     <script>
-        var map;
         var stations = [
             {% for station in stations %}
                 {
@@ -35,23 +34,18 @@
                 },
             {% endfor %}
         ];
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: {lat: {{ station.latitude }}, lng: {{ station.longitude }}},
-                zoom: 15
+        var mapOptions = {
+            center: new naver.maps.LatLng({{ station.latitude }}, {{ station.longitude }}),
+        };
+        var map = new naver.maps.Map('map', mapOptions);
+        for (var station of stations) {
+            var marker = new naver.maps.Marker({
+                position: {lat: station.latitude, lng: station.longitude},
+                map: map,
+                title: station.name,
+                url: station.url
             });
-            for (var station of stations) {
-                var marker = new google.maps.Marker({
-                    position: {lat: station.latitude, lng: station.longitude},
-                    map: map,
-                    title: station.name,
-                    url: station.url
-                });
-                google.maps.event.addListener(marker, 'click', function() {
-                    window.location.href = this.url;
-                });
-                marker.setMap(map);
-            }
+            marker.setMap(map);
         }
         {% if config.USE_CHART %}
             var data = [
