@@ -32,9 +32,6 @@
         <ul>
             <li>
                 <a href="{{ url_for('station.list_stations') }}">대여소</a>
-                {% if stations %}
-                    (<a href="{{ url_for('station.random_station') }}">랜덤</a>)
-                {% endif %}
             </li>
             <li>
                 <form action="{{ url_for('user.search') }}" method="post">
