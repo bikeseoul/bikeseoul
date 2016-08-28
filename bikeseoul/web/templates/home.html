@@ -27,8 +27,8 @@
                     url: station.url,
                     clickable: true,
                 });
-                naver.maps.Event.addListener(marker, 'click', function() {
-                    location = marker.url;
+                naver.maps.Event.addListener(marker, 'click', function(e) {
+                    location = e.overlay.url;
                 })
             }
             navigator.geolocation.getCurrentPosition(function (position) {
