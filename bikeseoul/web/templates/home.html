@@ -21,12 +21,15 @@
         if (navigator.geolocation) {
             for (var station of stations) {
                 var marker = new naver.maps.Marker({
-                    position: {lat: station.latitude, lng: station.longitude},
+                    position: new naver.maps.LatLng(station.latitude, station.longitude),
                     map: map,
                     title: station.name,
-                    url: station.url
+                    url: station.url,
+                    clickable: true,
                 });
-                marker.setMap(map);
+                naver.maps.Event.addListener(marker, 'click', function() {
+                    location = marker.url;
+                })
             }
             navigator.geolocation.getCurrentPosition(function (position) {
                 var location = new naver.maps.LatLng(position.coords.latitude, position.coords.longitude);
