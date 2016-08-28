@@ -36,9 +36,9 @@
             var destinationList = document.getElementById("destination-list");
             var searchResult = JSON.parse(this.responseText);
             var list = document.createElement("ul");
-            for(let station of searchResult['results']){
-                let item = document.createElement('li');
-                let anchor = document.createElement('a');
+            for (var station of searchResult['results']) {
+                var item = document.createElement('li');
+                var anchor = document.createElement('a');
                 anchor.setAttribute('href', 'to/' + station.id + '/');
                 var content = document.createTextNode(station.name);
                 anchor.appendChild(content);
