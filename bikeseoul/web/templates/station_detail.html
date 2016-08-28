@@ -18,13 +18,44 @@
     {% if config.USE_CHART %}
         <div id="chart"></div>
     {% endif %}
-    <a href="http://map.naver.com/?menu=route&mapMode=0&slng={{ station.longitude }}&slat={{ station.latitude }}&elng=127.074272&elat=37.54707&pathType=2&dtPathType=0">여기서 집으로 가기.</a>
+    <form action="{{ url_for('station.search_destination_station', station_id=station.id) }}" method="post" id="route-search">
+        <p>
+            여기로부터 길찾기:
+            <input type="search" name="query" id="search-destination">
+            <input type="submit" value="검색">
+        </p>
+    </form>
+    <div id="destination-list"></div>
     <div id="map"></div>
 {% endblock %}
 
 {% block trailing_javascript %}
     <script src="https://d3js.org/d3.v2.min.js" charset="utf-8"></script>
     <script>
+        function reqListener () {
+            var destinationList = document.getElementById("destination-list");
+            var searchResult = JSON.parse(this.responseText);
+            var list = document.createElement("ul");
+            for(let station of searchResult['results']){
+                let item = document.createElement('li');
+                let anchor = document.createElement('a');
+                anchor.setAttribute('href', 'to/' + station.id + '/');
+                var content = document.createTextNode(station.name);
+                anchor.appendChild(content);
+                item.appendChild(anchor);
+                list.appendChild(item);
+            }
+            destinationList.innerHTML = list.outerHTML;
+        }
+        var routeForm = document.getElementById("route-search");
+        routeForm.addEventListener("submit", function(event) {
+            var request = new XMLHttpRequest();
+            request.addEventListener("load", reqListener);
+            request.open("POST", "to/search/");
+            var formData = new FormData(routeForm);
+            request.send(formData);
+            event.preventDefault();
+        });
         var stations = [
             {% for station in stations %}
                 {

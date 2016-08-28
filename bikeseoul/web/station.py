@@ -9,7 +9,7 @@ from urllib.request import urlopen
 
 import requests
 from flask import (Blueprint, Response, current_app, redirect, render_template,
-                   stream_with_context, url_for, jsonify, abort)
+                   request, stream_with_context, url_for, jsonify, abort)
 from lxml import html
 from sqlalchemy.sql.functions import random, func
 
@@ -20,6 +20,7 @@ from .util import request_wants_json
 
 bp = Blueprint('station', __name__)
 
+NAVER_MAP_BIKE_ROUTE = "http://map.naver.com/?menu=route&mapMode=0&slng={origin.longitude}&slat={origin.latitude}&elng={dest.longitude}&elat={dest.latitude}&pathType=2&dtPathType=0"  # noqa
 BIKESEOUL_REALTIME_STATUS_URL = "https://www.bikeseoul.com/app/station/getStationRealtimeStatus.do"  # noqa
 BIKESEOUL_SEARCH_VIEW_URL = "https://www.bikeseoul.com/app/station/moveStationSearchView.do?currentPageNo={}"  # noqa
 
@@ -141,6 +142,29 @@ def station_detail(station_id):
                                prediction=prediction)
     else:
         abort(404)
+
+
+@bp.route('/stations/<int:station_id>/to/search/', methods=['POST'])
+def search_destination_station(station_id):
+    station = get_station(station_id)
+    if not station:
+        abort(404)
+    query = request.form['query']
+    stations = session.query(Station) \
+                      .filter(Station.name.contains(query) |
+                              Station.address.contains(query)) \
+                      .all()
+    results = [{'name': station.name, 'id': station.id} for station in stations]
+    return jsonify(results=results)
+
+
+@bp.route('/stations/<int:origin_id>/to/<int:dest_id>/')
+def route_stations(origin_id, dest_id):
+    origin = get_station(origin_id)
+    dest = get_station(dest_id)
+    if not (origin or dest):
+        abort(404)
+    return redirect(NAVER_MAP_BIKE_ROUTE.format(origin=origin, dest=dest))
 
 
 def build_record_for_prediction(status, stations):
