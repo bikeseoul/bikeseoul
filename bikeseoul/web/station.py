@@ -21,7 +21,6 @@ from .util import request_wants_json
 
 bp = Blueprint('station', __name__)
 
-NAVER_MAP_BIKE_ROUTE = "http://map.naver.com/?menu=route&mapMode=0&slng={origin.longitude}&slat={origin.latitude}&stext={origin.address}&elng={dest.longitude}&elat={dest.latitude}&etext={dest.address}&pathType=2&dtPathType=0"  # noqa
 BIKESEOUL_REALTIME_STATUS_URL = "https://www.bikeseoul.com/app/station/getStationRealtimeStatus.do"  # noqa
 BIKESEOUL_SEARCH_VIEW_URL = "https://www.bikeseoul.com/app/station/moveStationSearchView.do?currentPageNo={}"  # noqa
 
