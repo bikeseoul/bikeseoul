@@ -3,6 +3,7 @@
 
 """
 import json
+import urllib
 from datetime import datetime
 from pathlib import Path
 from urllib.request import urlopen
@@ -167,8 +168,18 @@ def route_stations(origin_id, dest_id):
     return redirect(url_for_bike_route(origin, dest))
 
 
-def url_for_bike_route(origin, destination):
-    return NAVER_MAP_BIKE_ROUTE.format(origin=origin, dest=destination)
+def url_for_bike_route(orig, dest):
+    url = "http://map.naver.com/?"
+    params = {
+        'pathType': 2,  # 자전거 길찾기
+        'slng': orig.longitude,
+        'slat': orig.latitude,
+        'stext': orig.address,
+        'elng': dest.longitude,
+        'elat': dest.latitude,
+        'etext': dest.address,
+    }
+    return url + urllib.parse.urlencode(params)
 
 
 def build_record_for_prediction(status, stations):
