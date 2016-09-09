@@ -20,7 +20,7 @@ from .util import request_wants_json
 
 bp = Blueprint('station', __name__)
 
-NAVER_MAP_BIKE_ROUTE = "http://map.naver.com/?menu=route&mapMode=0&slng={origin.longitude}&slat={origin.latitude}&elng={dest.longitude}&elat={dest.latitude}&pathType=2&dtPathType=0"  # noqa
+NAVER_MAP_BIKE_ROUTE = "http://map.naver.com/?menu=route&mapMode=0&slng={origin.longitude}&slat={origin.latitude}&stext={origin.address}&elng={dest.longitude}&elat={dest.latitude}&etext={dest.address}&pathType=2&dtPathType=0"  # noqa
 BIKESEOUL_REALTIME_STATUS_URL = "https://www.bikeseoul.com/app/station/getStationRealtimeStatus.do"  # noqa
 BIKESEOUL_SEARCH_VIEW_URL = "https://www.bikeseoul.com/app/station/moveStationSearchView.do?currentPageNo={}"  # noqa
 
@@ -164,7 +164,11 @@ def route_stations(origin_id, dest_id):
     dest = get_station(dest_id)
     if not (origin or dest):
         abort(404)
-    return redirect(NAVER_MAP_BIKE_ROUTE.format(origin=origin, dest=dest))
+    return redirect(url_for_bike_route(origin, dest))
+
+
+def url_for_bike_route(origin, destination):
+    return NAVER_MAP_BIKE_ROUTE.format(origin=origin, dest=destination)
 
 
 def build_record_for_prediction(status, stations):
