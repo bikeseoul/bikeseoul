@@ -60,6 +60,7 @@
         var stations = [
             {% for station in stations %}
                 {
+                    'id': {{ station.id }},
                     'name': '{{ station.name }}',
                     'longitude': {{ station.longitude }},
                     'latitude': {{ station.latitude }},
@@ -80,7 +81,14 @@
             });
             naver.maps.Event.addListener(marker, 'click', function(e) {
                 location = e.overlay.url;
-            })
+            });
+            if (station.id === {{ station.id }}) {
+                var contentString = station.name;
+                var infoWindow = new naver.maps.InfoWindow({
+                    content: contentString
+                });
+                infoWindow.open(map, marker);
+            };
         }
         {% if config.USE_CHART %}
             var data = [
